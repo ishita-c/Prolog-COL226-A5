@@ -1,0 +1,17 @@
+%% -- subsequence(S,L) predicate --
+subsequence([], _).
+subsequence([A|L1], [A|L2]) :- 
+    subsequence(L1, L2).
+subsequence([A|L1], [B|L2]) :- 
+    A \= B,
+    subsequence([A|L1], L2).
+subsequence(_, []) :- 
+    fail.
+
+%% -- Queries --
+%% subsequence([],[]).
+%% subsequence([a],[]).
+%% subsequence([],[a]).
+%% subsequence([c,d,e],[a,b,c,d,e,f]).
+%% subsequence([c,e],[a,b,c,d,e,f]).
+%% subsequence([f,a],[a,b,c,d,e,f]).
