@@ -1,0 +1,74 @@
+%% Recursively generate a list of signs that correspond to each number in the input list
+assign_signs([], []).
+assign_signs([_ | T], [+ | TS]) :- assign_signs(T, TS).
+assign_signs([_ | T], [- | TS]) :- assign_signs(T, TS).
+
+%% Sum of the list of numbers with the assigned signs
+sum_with_signs([], [], 0).
+sum_with_signs([N | Numbers], [S | Signs], Sum) :-
+    sum_with_signs(Numbers, Signs, Rest),
+    (S = (+) -> Sum is N + Rest ; Sum is -N + Rest).
+
+%% Print the equation once the sum matches the target
+print_equation_helper([], []).
+print_equation_helper([N | Numbers], [S | Signs]) :-
+    (S = (+) ->
+        write('+'),
+        write(N),
+        print_equation_helper(Numbers, Signs)
+    ; 
+        write('-'),
+        write(N),
+        print_equation_helper(Numbers, Signs)
+    ).
+print_equation([N | Numbers], [S | Signs]) :-
+    (S = (+) ->
+        write(N),
+        print_equation_helper(Numbers, Signs)
+    ; 
+        write('-'),
+        write(N),
+        print_equation_helper(Numbers, Signs)
+    ).
+
+%% Main predicate
+arith(List) :-
+    append(Numbers, [Target], List),
+    assign_signs(Numbers, Signs),
+    sum_with_signs(Numbers, Signs, Sum),
+    Sum =:= Target,
+    print_equation(Numbers,Signs),
+    write('='),
+    write(Target),
+    nl.
+
+%% --------------------------------------------------------------------------
+
+%%  Test Queries
+%%
+%%  ?- arith([2,3,4,6,9]).
+%%  2-3+4+6=9
+%%  true 
+%%  
+%%  ?- arith([1,2,3,4,8,9,24,36,54,7,8,38]).
+%%  1+2+3+4-8+9+24-36+54-7-8=38
+%%  true
+%%  
+%%  ?- arith([2,3,1]).
+%%  -2+3=1
+%%  true 
+%%
+%%  ?- arith([1,0,2]).
+%%  false.
+%%  
+%%  ?- arith([3,5,0,2]).
+%%  -3+5+0=2
+%%  true .
+%%  
+%%  ?- arith([-1,-1,0,-2]).
+%%  -1+-1+0=-2
+%%  true .
+%%  
+%%  ?- arith([-1,-1,0]).
+%%  -1--1=0
+%%  true .
