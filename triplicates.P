@@ -1,0 +1,20 @@
+
+%% -- Helper function -- 
+count_occurrences(_, [], 0).
+count_occurrences(X, [X|Xs], Count) :- 
+    count_occurrences(X, Xs, SubCount), Count is SubCount + 1.
+count_occurrences(X, [Y|Ys], Count) :- 
+    X \= Y, count_occurrences(X, Ys, Count).
+
+%% -- has no triplicates(L) predicate -- 
+has_no_triplicates([]).
+has_no_triplicates([X|Xs]) :- 
+    count_occurrences(X, [X|Xs], Count), Count < 3, has_no_triplicates(Xs).
+
+%% -- Queries --
+%% has_no_triplicates([]).
+%% has_no_triplicates([1]).
+%% has_no_triplicates([1,1,1]).
+%% has_no_triplicates([1,a,1,a,1]).
+%% has_no_triplicates([d,a,a,b,b,c,c,d,d]).
+%% has_no_triplicates([1,2,3,4,5,1,2,3,4,5]).
