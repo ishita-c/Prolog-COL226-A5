@@ -1,0 +1,74 @@
+%% Define the 4 people under consideration
+person(alice).
+person(bob).
+person(carol).
+person(davis).
+
+%% Who can paddle alone
+can_cross_alone(P) :-
+    person(P).
+
+%% Who can paddle with whom as the passenger
+can_cross_together(Paddler, Passenger) :-
+    person(Paddler),
+    person(Passenger),
+    Paddler \= alice, % Alice can never be the paddler
+    (Paddler \= bob ; Passenger = carol). % Bob can only paddle when Passenger is Carol
+
+%% Rule for crossing from left to right (P1 - Paddler, P2 - Passenger)
+cross_ltr(P1, P2, Left, Right, NewLeft, NewRight) :-
+    can_cross_together(P1, P2),
+    member(P1,Left),
+    member(P2,Left),
+    select(P1, Left, TempLeft),
+    select(P2, TempLeft, NewLeft),
+    append([P1, P2], Right, NewRight).
+
+%% Rule for crossing from right to left 
+cross_rtl(P, Left, Right, NewLeft, NewRight) :-
+    can_cross_alone(P),
+    member(P,Right),
+    select(P, Right, NewRight),
+    append([P], Left, NewLeft).
+
+%% Check that everyone paddles atleast once
+everyone_paddles(Paddlers) :-
+    member(alice, Paddlers),
+    member(bob, Paddlers),
+    member(carol, Paddlers),
+    member(davis, Paddlers).
+
+%% Find who paddled twice from the list of Paddlers
+find_repeat(Names, Name) :-
+    select(Name, Names, Rest),
+    member(Name, Rest).
+
+%% Helper function to be called to solve the ABCD problem
+solve(Left, Right) :-
+    cross_ltr(Paddler1, Passenger1, Left, Right, Left1, Right1),
+    cross_rtl(Paddler2, Left1, Right1, Left2, Right2),
+    cross_ltr(Paddler3, Passenger2, Left2, Right2, Left3, Right3),
+    cross_rtl(Paddler4, Left3, Right3, Left4, Right4),
+    cross_ltr(Paddler5, Passenger3, Left4, Right4, _, _),
+
+    Paddlers = [Paddler1, Paddler2, Paddler3, Paddler4, Paddler5],
+    everyone_paddles(Paddlers),
+    find_repeat(Paddlers, Answer),
+
+    write('First crossing : '), write(Paddler1), write(' and '), write(Passenger1), nl,
+    write('Second crossing: '), write(Paddler2), nl,
+    write('Third crossing : '), write(Paddler3), write(' and '), write(Passenger2), nl,
+    write('Fourth crossing: '), write(Paddler4), nl,
+    write('Fifth crossing : '), write(Paddler5), write(' and '), write(Passenger3), nl,
+    nl,
+    write('Paddled twice: '), writeln(Answer),
+    nl.
+
+%% Find the solution
+abcd() :-
+    findall(P, person(P), Left),
+    solve(Left,[]).
+
+%% --------------------------------------------------------------------------------------------------
+%% Final Solution
+%% Carol paddles twice
